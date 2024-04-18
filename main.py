@@ -3,7 +3,7 @@ from typing import Generator
 from config import settings
 from api_get.api_mun import mun_get_main
 from queries.orm import SyncOrm
-from models.pydantic_mun_model import Article, ArticleClear
+from models.pydantic_mun_model import ArticleClear
 
 
 def main(recreate_table: bool = True) -> None:
@@ -23,7 +23,6 @@ def main(recreate_table: bool = True) -> None:
 
 def send_to_db(article_generator: Generator) -> None:
     for article in article_generator:
-        # article_dict = article.model_dump()
         article_clear = ArticleClear(**article.model_dump())
         SyncOrm.insert_news_to_db(article_clear.model_dump(), article)
         break
