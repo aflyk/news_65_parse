@@ -37,17 +37,20 @@ class Image(BaseModel):
         orm_model = ImageOrm
 
 
-class Content(BaseModel):
+class ContentBase(BaseModel):
     position: Optional[int] = None
     kind: Optional[str] = None
     text: Optional[str] = None
+
+
+class Content(ContentBase):
     images: Optional[list[Image]] = None
 
     class Meta:
         orm_model = ContentOrm
 
 
-class ArticleClear(BaseModel):
+class ArticleBase(BaseModel):
     title: str
     published_at: datetime
     lead: str
@@ -57,7 +60,7 @@ class ArticleClear(BaseModel):
     site_link: Optional[str] = None
 
 
-class Article(ArticleClear):
+class Article(ArticleBase):
     tags: Optional[list[Tag]] = None
     content_blocks: Optional[list[Content]] = None
     image: Optional[Image] = None

@@ -10,7 +10,10 @@ from models.sqlalchemy_model import (
     # TagOrm,
     # ArticleTag
 )
-from models.pydantic_mun_model import Article
+from models.pydantic_mun_model import (
+    Article,
+    ContentBase
+)
 
 
 class SyncOrm:
@@ -26,6 +29,8 @@ class SyncOrm:
             session.add(artical_orm)
             session.flush()
             for content in article.content_blocks:
-                content_orm = ContentOrm(**content.model_dump())
-                content_orm
+                content_base = ContentBase(**content.model_dump())
+                if not content.images:
+
+
             session.commit()

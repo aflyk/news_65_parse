@@ -9,19 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
-# class NewsOrm(Base):
-#     __tablename__ = 'news'
-
-#     title: Mapped[str]
-#     path: Mapped[str]
-#     published_at: Mapped[datetime]
-#     images_count: Mapped[int]
-#     lead: Mapped[str]
-#     source: Mapped[Optional[str]]
-
-#     article: Mapped['ArticleOrm'] = relationship(
-#         back_populates='news',
-#     )
 article_tag = Table(
     'article_tag',
     Base.metadata,
@@ -39,15 +26,21 @@ class ArticleOrm(Base):
     rubric_title: Mapped[str]
     type: Mapped[str]
     authors: Mapped[str]
-    site_link: Mapped[str]
-    # news_id: Mapped[int] = mapped_column(
-    #     ForeignKey('news.id', ondelete='CASCADE', name="fk_article_news")
-    # )
 
-    # news: Mapped['NewsOrm'] = relationship(
-    #     back_populates='article',
-    # )
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey('source.id', name='fk_article_source')
+    )
+    image_id: Mapped[int] = mapped_column(
+        ForeignKey('article.id', name='fk_article_image')
+    )
+
     content_blocks: Mapped['ContentOrm'] = relationship(
+        back_populates='article'
+    )
+    image: Mapped['ImageOrm'] = relationship(
+        back_populates='article'
+    )
+    source: Mapped['SourceOrm'] = relationship(
         back_populates='article'
     )
     tags: Mapped[list['TagOrm']] = relationship(
@@ -62,15 +55,16 @@ class ContentOrm(Base):
     position: Mapped[Optional[int]]
     kind: Mapped[Optional[str]]
     text: Mapped[Optional[str]]
-    images_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('image.id', ondelete='CASCADE', name='fk_content_image')
-    )
+
     article_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('article.id', ondelete='CASCADE', name='fk_article_content')
     )
 
     article: Mapped['ArticleOrm'] = relationship(
         back_populates='content_blocks'
+    )
+    image: Mapped['ImageOrm'] = relationship(
+        back_populates='content'
     )
 
 
@@ -87,14 +81,15 @@ class ImageOrm(Base):
     image_800: Mapped[Optional[str]]
     image_1600: Mapped[Optional[str]]
 
-    # news_id: Mapped[int] = mapped_column(
-    #     ForeignKey('news.id', name='fk_image_news')
-    # )
-    article_id: Mapped[int] = mapped_column(
-        ForeignKey('article.id', name='fk_article_image')
-    )
     content_id: Mapped[int] = mapped_column(
         ForeignKey('content.id', name='fk_content_image')
+    )
+
+    article: Mapped['ArticleOrm'] = relationship(
+        back_populates='image'
+    )
+    content: Mapped['ContentOrm'] = relationship(
+        back_populates='image'
     )
 
 
@@ -108,6 +103,17 @@ class TagOrm(Base):
     article: Mapped[list['ArticleOrm']] = relationship(
         back_populates='tags',
         secondary=article_tag
+    )
+
+
+class SourceOrm(Base):
+    __tablename__ = 'source'
+
+    name: Mapped[str]
+    url: Mapped[str]
+
+    article: Mapped['ArticleOrm'] = relationship(
+        back_populates='content'
     )
 
 
