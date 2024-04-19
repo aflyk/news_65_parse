@@ -109,12 +109,12 @@ class TagOrm(Base):
 class SourceOrm(Base):
     __tablename__ = 'source'
 
-    city: Mapped[Optional[str]]
-    name: Mapped[Optional[str]]
-    url: Mapped[Optional[str]]
+    city: Mapped[str]
+    name: Mapped[str]
+    url: Mapped[str]
 
     article: Mapped['ArticleOrm'] = relationship(
-        back_populates='source'
+        back_populates='content'
     )
 
 

@@ -8,11 +8,13 @@ from models.sqlalchemy_model import (
     ArticleOrm,
     # ImageOrm,
     # TagOrm,
-    # ArticleTag
+    # ArticleTag,
+    SourceOrm
 )
 from models.pydantic_mun_model import (
     Article,
-    ContentBase
+    ContentBase,
+    Image
 )
 
 
@@ -23,14 +25,21 @@ class SyncOrm:
         Base.metadata.create_all(bind=engine)
 
     @staticmethod
+    def fill_catalog(sources):
+        with session_fabric() as session:
+            source_list = [SourceOrm(**source) for source in sources]
+            session.add_all(source_list)
+            session.commit()
+
+    @staticmethod
     def insert_news_to_db(article_clear: dict[any, any], article: Article):
         with session_fabric() as session:
             artical_orm = ArticleOrm(**article_clear)
             session.add(artical_orm)
             session.flush()
-            for content in article.content_blocks:
-                content_base = ContentBase(**content.model_dump())
-                if not content.images:
-
-
+            # for content in article.content_blocks:
+            #     content_base = ContentBase(**content.model_dump())
+            #     content_orm = content_base
+            #     content_orm
+            #     if content.images:
             session.commit()
