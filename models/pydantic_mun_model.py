@@ -57,13 +57,13 @@ class ArticleBase(BaseModel):
     rubric_title: Optional[str] = None
     type: Optional[str] = None
     authors: list[str] | str | None = None
-    site_link: Optional[str] = None
 
 
 class Article(ArticleBase):
     tags: Optional[list[Tag]] = None
     content_blocks: Optional[list[Content]] = None
     image: Optional[Image] = None
+    site_link: Optional[str] = None
 
     class Meta:
         orm_model = ArticleOrm

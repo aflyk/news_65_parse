@@ -36,9 +36,11 @@ class SyncOrm:
     @staticmethod
     def fill_catalog(sources):
         with session_fabric() as session:
+            log.debug('Заполнение таблицы source')
             source_list = [SourceOrm(**source) for source in sources]
             session.add_all(source_list)
             session.commit()
+            log.debug('Справочники заполнены')
 
     @staticmethod
     def insert_news_to_db(article_clear: dict[any, any], article: Article):
@@ -61,15 +63,9 @@ class SyncOrm:
                 'image_id': img_id}
 
             artical_orm = ArticleOrm(**article_dict)
+            log.debug(f'{artical_orm.image_id}')
             session.add(artical_orm)
             session.flush()
-            print(artical_orm.id)
-            # for content in article.content_blocks:
-            #     content_base = ContentBase(**content.model_dump())
-            #     content_orm = content_base
-            #     content_orm
-            #     if content.images:
-            # session.commit()
 
     @staticmethod
     def get_source_id_by_url(url: str, session) -> int:
@@ -82,11 +78,14 @@ class SyncOrm:
                             session,
                             content_id: int | None = None
                             ) -> int | None:
-        for image in images:
-            image_orm = {**image, 'content_id': content_id}
-            session.add(
-                ImageOrm(**image_orm)
-                )
-        if not content_id:
-            return image_orm.id
-        return None
+        try:
+            for image in images:
+                image_orm = {**image, 'content_id': content_id}
+                session.add(
+                    ImageOrm(**image_orm)
+                    )
+            if not content_id:
+                return image_orm.id
+            return None
+        except Exception as e:
+            log.debug(f'Возникла проблема {e} с добавлением \n{image}\nв таблицу image')

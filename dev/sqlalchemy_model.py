@@ -30,15 +30,17 @@ class ArticleOrm(Base):
     source_id: Mapped[int] = mapped_column(
         ForeignKey('source.id', name='fk_article_source')
     )
-    image_id: Mapped[int] = mapped_column(
-        ForeignKey('image.id', name='fk_article_image')
+    image_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey('image.id', name='fk_article_image'),
+        nullable=True
     )
 
     content_blocks: Mapped['ContentOrm'] = relationship(
         back_populates='article'
     )
     image: Mapped['ImageOrm'] = relationship(
-        back_populates='article'
+        back_populates='article',
+        uselist=False
     )
     source: Mapped['SourceOrm'] = relationship(
         back_populates='article'
@@ -57,7 +59,7 @@ class ContentOrm(Base):
     text: Mapped[Optional[str]]
 
     article_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey('article.id', ondelete='CASCADE', name='fk_article_content')
+        ForeignKey('article.id', name='fk_article_content')
     )
 
     article: Mapped['ArticleOrm'] = relationship(

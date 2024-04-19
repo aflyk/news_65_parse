@@ -15,7 +15,6 @@ log = logging.getLogger(__name__)
 def main(recreate_table: bool = True) -> None:
     if recreate_table:
         log.debug('Подготовка базы данных')
-        return None
         SyncOrm.create_table()
         log.debug('Начало заполнения каталогов')
         SyncOrm.fill_catalog(settings.news_link)
