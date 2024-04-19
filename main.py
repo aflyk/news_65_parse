@@ -9,16 +9,11 @@ from models.pydantic_mun_model import ArticleClear
 def main(recreate_table: bool = True) -> None:
     if recreate_table:
         SyncOrm.create_table()
-    for type_link, links in settings.news_link.items():
-        for link in links:
-            if type_link == 'mun':
-                article_generator = mun_get_main(link)
-                send_to_db(article_generator)
-                break
-            elif type_link == 'reg':
-                pass
-            else:
-                raise f'Неожиданный тип новостных порталов: {type_link}'
+    for source in settings.news_link:
+        # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
+        article_generator = mun_get_main(source.url)
+        send_to_db(article_generator)
+        # raise f'Неожиданный тип новостных порталов: {type_link}'
 
 
 def send_to_db(article_generator: Generator) -> None:
