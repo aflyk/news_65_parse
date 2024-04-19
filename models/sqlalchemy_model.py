@@ -1,3 +1,7 @@
+"""
+Статья о том как поженить pydantic с sqlachemy
+https://stackoverflow.com/questions/64414030/how-to-use-nested-pydantic-models-for-sqlalchemy-in-a-flexible-way
+"""
 from datetime import datetime
 from typing import Optional
 

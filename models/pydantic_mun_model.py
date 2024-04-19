@@ -56,7 +56,7 @@ class ArticleBase(BaseModel):
     lead: str
     rubric_title: Optional[str] = None
     type: Optional[str] = None
-    authors: Optional[list[str]] = None
+    authors: list[str] | str | None = None
     site_link: Optional[str] = None
 
 

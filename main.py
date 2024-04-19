@@ -1,19 +1,29 @@
+import logging, logging.config
 from typing import Generator
 
+from log.logging_settings import logging_config
 from config import settings
 from api_get.api_mun import mun_get_main
 from queries.orm import SyncOrm
 from models.pydantic_mun_model import ArticleBase
 
 
+logging.config.dictConfig(logging_config)
+log = logging.getLogger(__name__)
+
+
 def main(recreate_table: bool = True) -> None:
     if recreate_table:
+        log.debug('Подготовка базы данных')
+        return None
         SyncOrm.create_table()
+        log.debug('Начало заполнения каталогов')
         SyncOrm.fill_catalog(settings.news_link)
     for source in settings.news_link:
         # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
         article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
+        break
         # raise f'Неожиданный тип новостных порталов: {type_link}'
 
 
