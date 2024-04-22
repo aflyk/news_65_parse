@@ -1,7 +1,7 @@
 import logging
 
 
-from sqlalchemy import select
+# from sqlalchemy import select
 # from sqlalchemy.orm import joinedload, selectinload
 
 
@@ -16,9 +16,9 @@ from models.sqlalchemy_model import (
     SourceOrm
 )
 from models.pydantic_mun_model import (
-    Article,
-    ContentBase,
-    Image
+    Article
+    # ContentBase,
+    # Image
 )
 
 
@@ -50,22 +50,18 @@ class SyncOrm:
                 session
                 )
 
-            img_id = None
-            if article.image:
-                img_id = SyncOrm.create_image_record(
-                    list(article.image.model_dump()),
-                    session
-                    )
-
             article_dict = {
                 **article_clear,
-                'source_id': source_id,
-                'image_id': img_id}
-
+                'source_id': source_id}
             artical_orm = ArticleOrm(**article_dict)
-            log.debug(f'{artical_orm.image_id}')
+            artical_orm.image = ImageOrm(**article.image.model_dump())
+            artical_orm.content_blocks = [ContentOrm(**content.model_dump())
+                                          for content in
+                                          article.content_blocks]
             session.add(artical_orm)
             session.flush()
+
+            session.commit()
 
     @staticmethod
     def get_source_id_by_url(url: str, session) -> int:
@@ -88,4 +84,5 @@ class SyncOrm:
                 return image_orm.id
             return None
         except Exception as e:
-            log.debug(f'Возникла проблема {e} с добавлением \n{image}\nв таблицу image')
+            log.debug(f'Возникла проблема {e} с добавлением \n{image}\n'
+                      'в таблицу image')

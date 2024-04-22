@@ -1,4 +1,6 @@
-import logging, logging.config
+import logging
+import logging.config
+
 from typing import Generator
 
 from log.logging_settings import logging_config

@@ -20,6 +20,13 @@ article_tag = Table(
     Column('tag_id', ForeignKey('tag.id'), primary_key=True)
 )
 
+content_image = Table(
+    'content_image',
+    Base.metadata,
+    Column('content_id', ForeignKey('content.id'), primary_key=True),
+    Column('image_id', ForeignKey('image.id'), primary_key=True)
+)
+
 
 class ArticleOrm(Base):
     __tablename__ = 'article'
@@ -29,16 +36,16 @@ class ArticleOrm(Base):
     lead: Mapped[str]
     rubric_title: Mapped[str]
     type: Mapped[str]
-    authors: Mapped[str]
+    authors: Mapped[Optional[str]]
 
     source_id: Mapped[int] = mapped_column(
         ForeignKey('source.id', name='fk_article_source')
     )
-    image_id: Mapped[int] = mapped_column(
+    image_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('image.id', name='fk_article_image')
     )
 
-    content_blocks: Mapped['ContentOrm'] = relationship(
+    content_blocks: Mapped[list['ContentOrm']] = relationship(
         back_populates='article'
     )
     image: Mapped['ImageOrm'] = relationship(
@@ -59,7 +66,6 @@ class ContentOrm(Base):
     position: Mapped[Optional[int]]
     kind: Mapped[Optional[str]]
     text: Mapped[Optional[str]]
-
     article_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('article.id', ondelete='CASCADE', name='fk_article_content')
     )
@@ -67,7 +73,7 @@ class ContentOrm(Base):
     article: Mapped['ArticleOrm'] = relationship(
         back_populates='content_blocks'
     )
-    image: Mapped['ImageOrm'] = relationship(
+    images: Mapped['ImageOrm'] = relationship(
         back_populates='content'
     )
 
@@ -85,15 +91,16 @@ class ImageOrm(Base):
     image_800: Mapped[Optional[str]]
     image_1600: Mapped[Optional[str]]
 
-    content_id: Mapped[int] = mapped_column(
-        ForeignKey('content.id', name='fk_content_image')
+    content_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey('content.id', name='fk_content_image'),
     )
 
     article: Mapped['ArticleOrm'] = relationship(
-        back_populates='image'
+        back_populates='image',
     )
     content: Mapped['ContentOrm'] = relationship(
-        back_populates='image'
+        back_populates='images',
+        secondary=content_image,
     )
 
 

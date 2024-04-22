@@ -27,7 +27,7 @@ class ArticleOrm(Base):
     type: Mapped[str]
     authors: Mapped[str]
 
-    source_id: Mapped[int] = mapped_column(
+    source_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('source.id', name='fk_article_source')
     )
     image_id: Mapped[Optional[int]] = mapped_column(
@@ -38,10 +38,10 @@ class ArticleOrm(Base):
     content_blocks: Mapped['ContentOrm'] = relationship(
         back_populates='article'
     )
-    image: Mapped['ImageOrm'] = relationship(
-        back_populates='article',
-        uselist=False
-    )
+    # image: Mapped['ImageOrm'] = relationship(
+    #     back_populates='article',
+    #     uselist=False
+    # )
     source: Mapped['SourceOrm'] = relationship(
         back_populates='article'
     )
@@ -83,16 +83,16 @@ class ImageOrm(Base):
     image_800: Mapped[Optional[str]]
     image_1600: Mapped[Optional[str]]
 
-    content_id: Mapped[int] = mapped_column(
-        ForeignKey('content.id', name='fk_content_image')
-    )
+    # content_id: Mapped[Optional[int]] = mapped_column(
+    #     ForeignKey('content.id', name='fk_content_image')
+    # )
 
     article: Mapped['ArticleOrm'] = relationship(
         back_populates='image'
     )
-    content: Mapped['ContentOrm'] = relationship(
-        back_populates='image'
-    )
+    # content: Mapped['ContentOrm' | None] = relationship(
+    #     back_populates='image'
+    # )
 
 
 class TagOrm(Base):
