@@ -7,18 +7,14 @@ import logging
 
 from database import Base, engine, session_fabric
 from models.sqlalchemy_model import (
-    # NewsOrm,
     ContentOrm,
     ArticleOrm,
     ImageOrm,
-    # TagOrm,
-    # ArticleTag,
+    TagOrm,
     SourceOrm
 )
 from models.pydantic_mun_model import (
     Article
-    # ContentBase,
-    # Image
 )
 
 
@@ -49,15 +45,28 @@ class SyncOrm:
                 article.site_link,
                 session
                 )
-
+            log.debug(f'Получение новости с сайта {article.site_link}')
             article_dict = {
                 **article_clear,
                 'source_id': source_id}
+            log.debug('Запись основной информации о статье')
             artical_orm = ArticleOrm(**article_dict)
+            log.debug('Сохраяняем фото к статье')
             artical_orm.image = ImageOrm(**article.image.model_dump())
-            artical_orm.content_blocks = [ContentOrm(**content.model_dump())
-                                          for content in
-                                          article.content_blocks]
+            log.debug('Начинаем работу с блоком контента')
+            content_blocks = []
+            for content in article.content_blocks:
+                content_orm = ContentOrm(**content.model_dump())
+                if content.images:
+                    img_list = []
+                    for img in content.images:
+                        img_list.append(ImageOrm(**img.model_dump()))
+                    content_orm.images = img_list
+                content_blocks.append(content_orm)
+            log.debug('Сохраняем блок контента')
+            artical_orm.content_blocks = content_blocks
+            tags_list = [TagOrm(**tag.model_dump()) for tag in article.tags]
+            artical_orm.tags = tags_list
             session.add(artical_orm)
             session.flush()
 
