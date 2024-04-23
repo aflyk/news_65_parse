@@ -1,7 +1,7 @@
 import logging
 
 
-# from sqlalchemy import select
+from sqlalchemy import select
 # from sqlalchemy.orm import joinedload, selectinload
 
 
@@ -70,8 +70,24 @@ class SyncOrm:
                 content_blocks.append(content_orm)
             log.debug('Сохраняем блок контента')
             artical_orm.content_blocks = content_blocks
-            tags_list = [TagOrm(**tag.model_dump()) for tag in article.tags]
+
+            tags_list = []
+            for tag in article.tags:
+                tag_title = tag.title
+                query = (
+                    select(
+                        TagOrm
+                        )
+                    .filter_by(title=tag_title)
+                )
+                tag_orm = session.execute(query).scalars().one_or_none()
+                log.debug(f'Полученны данные {tag_orm}')
+                if not tag_orm:
+                    tag_orm = TagOrm(**tag.model_dump())
+                log.debug(tag_orm)
+                tags_list.append(tag_orm)
             artical_orm.tags = tags_list
+
             session.add(artical_orm)
             session.commit()
 

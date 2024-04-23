@@ -5,21 +5,10 @@ from datetime import datetime
 from typing import Optional
 
 
-from models.sqlalchemy_model import (
-    TagOrm,
-    ImageOrm,
-    ContentOrm,
-    ArticleOrm,
-)
-
-
 class Tag(BaseModel):
     title: Optional[str] = None
     slug: Optional[str] = None
     path: Optional[str] = None
-
-    class Meta:
-        orm_model = TagOrm
 
 
 class Image(BaseModel):
@@ -33,9 +22,6 @@ class Image(BaseModel):
     image_800: Optional[str] = None
     image_1600: Optional[str] = None
 
-    class Meta:
-        orm_model = ImageOrm
-
 
 class ContentBase(BaseModel):
     position: Optional[int] = None
@@ -45,9 +31,6 @@ class ContentBase(BaseModel):
 
 class Content(ContentBase):
     images: Optional[list[Image]] = None
-
-    class Meta:
-        orm_model = ContentOrm
 
 
 class ArticleBase(BaseModel):
@@ -64,9 +47,6 @@ class Article(ArticleBase):
     content_blocks: Optional[list[Content]] = None
     image: Optional[Image] = None
     site_link: Optional[str] = None
-
-    class Meta:
-        orm_model = ArticleOrm
 
 
 class News(BaseModel):

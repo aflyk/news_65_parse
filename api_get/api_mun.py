@@ -45,24 +45,30 @@ def mun_get_main(link: str) -> Generator[Article, str, None]:
             article = get_mun_api(api_link + current_news.path)
             current_article = Article(**article)
             current_article.site_link = link
-            current_article.image.image_90 = (link +
-                                              current_article.
-                                              image.
-                                              image_90[1:])
-            current_article.image.image_800 = (link +
-                                               current_article.
-                                               image.
-                                               image_800[1:])
-            current_article.image.image_250 = (link +
-                                               current_article.
-                                               image.
-                                               image_250[1:])
-            current_article.image.image_1600 = (link +
-                                                current_article.
-                                                image.
-                                                image_1600[1:])
+            if current_article.image:
+                current_article.image.image_90 = (
+                    link +
+                    current_article.
+                    image.
+                    image_90[1:])
+                current_article.image.image_800 = (
+                    link +
+                    current_article.
+                    image.
+                    image_800[1:])
+                current_article.image.image_250 = (
+                    link +
+                    current_article.
+                    image.
+                    image_250[1:])
+                current_article.image.image_1600 = (
+                    link +
+                    current_article.
+                    image.
+                    image_1600[1:])
 
-            current_article.authors = (', '.join(current_article.authors)
-                                       if current_article.authors
-                                       else current_article.authors)
+                current_article.authors = (
+                    ', '.join(current_article.authors)
+                    if current_article.authors
+                    else current_article.authors)
             yield current_article
