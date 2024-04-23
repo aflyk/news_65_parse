@@ -14,7 +14,8 @@ from models.sqlalchemy_model import (
     SourceOrm
 )
 from models.pydantic_mun_model import (
-    Article
+    Article,
+    ContentBase
 )
 
 
@@ -56,7 +57,11 @@ class SyncOrm:
             log.debug('Начинаем работу с блоком контента')
             content_blocks = []
             for content in article.content_blocks:
-                content_orm = ContentOrm(**content.model_dump())
+                try:
+                    content_for_orm = ContentBase(**content.model_dump())
+                    content_orm = ContentOrm(**content_for_orm.model_dump())
+                except Exception as e:
+                    log.error(f'{e}\n{content.model_dump()}')
                 if content.images:
                     img_list = []
                     for img in content.images:
@@ -68,8 +73,6 @@ class SyncOrm:
             tags_list = [TagOrm(**tag.model_dump()) for tag in article.tags]
             artical_orm.tags = tags_list
             session.add(artical_orm)
-            session.flush()
-
             session.commit()
 
     @staticmethod
@@ -77,21 +80,3 @@ class SyncOrm:
         source_orm = session.query(SourceOrm).filter_by(url=url)
         source = source_orm.one()
         return source.id
-
-    @staticmethod
-    def create_image_record(images: list[dict[str, str]],
-                            session,
-                            content_id: int | None = None
-                            ) -> int | None:
-        try:
-            for image in images:
-                image_orm = {**image, 'content_id': content_id}
-                session.add(
-                    ImageOrm(**image_orm)
-                    )
-            if not content_id:
-                return image_orm.id
-            return None
-        except Exception as e:
-            log.debug(f'Возникла проблема {e} с добавлением \n{image}\n'
-                      'в таблицу image')

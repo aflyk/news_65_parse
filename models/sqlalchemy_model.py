@@ -20,13 +20,6 @@ article_tag = Table(
     Column('tag_id', ForeignKey('tag.id'), primary_key=True)
 )
 
-content_image = Table(
-    'content_image',
-    Base.metadata,
-    Column('content_id', ForeignKey('content.id'), primary_key=True),
-    Column('image_id', ForeignKey('image.id'), primary_key=True)
-)
-
 
 class ArticleOrm(Base):
     __tablename__ = 'article'
@@ -73,7 +66,7 @@ class ContentOrm(Base):
     article: Mapped['ArticleOrm'] = relationship(
         back_populates='content_blocks'
     )
-    images: Mapped['ImageOrm'] = relationship(
+    images: Mapped[list['ImageOrm']] = relationship(
         back_populates='content'
     )
 
@@ -99,8 +92,7 @@ class ImageOrm(Base):
         back_populates='image',
     )
     content: Mapped['ContentOrm'] = relationship(
-        back_populates='images',
-        secondary=content_image,
+        back_populates='images'
     )
 
 

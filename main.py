@@ -1,5 +1,4 @@
 import time
-import logging
 import logging.config
 
 from typing import Generator
@@ -26,7 +25,6 @@ def main(recreate_table: bool = True) -> None:
         article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
         time.sleep(1)
-        # raise f'Неожиданный тип новостных порталов: {type_link}'
 
 
 def send_to_db(article_generator: Generator) -> None:

@@ -9,11 +9,17 @@ logging_config = {
     'handlers': {
         'default': {
             'class': 'logging.StreamHandler',
-            'formatter': 'default'
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        'queries.orm': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
         },
     },
     'root': {
-        'formatter': 'default',
         'level': 'DEBUG',
         'handlers': ['default']
     }
