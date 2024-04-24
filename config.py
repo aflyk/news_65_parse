@@ -46,6 +46,7 @@ SOURCE_LIST = [
     'Холмский - Газета «Холмская панорама» - https://kholmsk.info/',
     'Попронайский - Газета «Экспресс» - https://express65.ru/',
     'Томаринский - Газета «Вести Томари» - https://vesti-tomari.ru/',
+    'Южно-Сахалинск - sahk-online - https://sakh.online/'
 ]
 
 for source in SOURCE_LIST:

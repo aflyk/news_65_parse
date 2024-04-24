@@ -168,17 +168,19 @@ class SyncOrm:
             article: Article,
             session: Session
             ) -> ArticleOrm:
+        log.info('Обновление вложений')
         article_orm.image = SyncOrm.get_article_image(article)
         article_orm.content_blocks = (
             SyncOrm.get_article_content_block(article)
             )
         article_orm.tags = SyncOrm.get_article_tags(article, session)
+        log.info('Вложения обновлены')
         return article_orm
 
     @staticmethod
     def get_hash(article: Article):
         hash_object = hashlib.shake_256(article.model_dump_json().encode())
-        hash_value = hash_object.hexdigest()
+        hash_value = hash_object.hexdigest(16)
         return hash_value
 
     @staticmethod
