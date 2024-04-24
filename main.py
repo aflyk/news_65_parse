@@ -34,4 +34,6 @@ def send_to_db(article_generator: Generator) -> None:
 
 
 if __name__ == '__main__':
+    start = time.time()
     main()
+    print(time.time() - start)
