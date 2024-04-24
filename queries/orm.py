@@ -16,6 +16,7 @@ from models.sqlalchemy_model import (
 )
 from models.pydantic_mun_model import (
     Article,
+    ArticleBase,
     ContentBase,
     Image
 )
@@ -143,11 +144,36 @@ class SyncOrm:
         article_orm = SyncOrm.get_one_or_none(query, session)
 
         if article_orm and (article_orm.hash != hash_value):
-
-            return False
+            # организовать удаление записи или апдейт?
+            article_clear = ArticleBase(**article.model_dump()).model_dump()
+            article_dict = {
+                **article_clear,
+                'source_id': source_id,
+                'hash': hash_value,
+                }
+            article_orm = ArticleOrm(**article_dict)
+            article_orm = SourceOrm.update_article(
+                article_orm,
+                article,
+                session
+                )
+            return True
         elif article_orm and (article_orm.hash == hash_value):
             return True
         return False
+
+    @staticmethod
+    def update_article(
+            article_orm: ArticleOrm,
+            article: Article,
+            session: Session
+            ) -> ArticleOrm:
+        article_orm.image = SyncOrm.get_article_image(article)
+        article_orm.content_blocks = (
+            SyncOrm.get_article_content_block(article)
+            )
+        article_orm.tags = SyncOrm.get_article_tags(article, session)
+        return article_orm
 
     @staticmethod
     def get_hash(article: Article):
@@ -157,22 +183,30 @@ class SyncOrm:
 
     @staticmethod
     def pre_write_check(article: Article, session: Session):
-        with session_fabric() as session:
-            # получение id ресурса с которого тянется новость
-            source_id = SyncOrm.get_source_id_by_url(
-                article.site_link,
-                session
-                )
-            # вычисление хэша с новости
-            hash_value = SyncOrm.get_hash(article)
-            # проверка на существования статьи
-            if SyncOrm.check_article(article, hash_value, source_id, session):
-                return None
+        # получение id ресурса с которого тянется новость
+        source_id = SyncOrm.get_source_id_by_url(
+            article.site_link,
+            session
+            )
+        # вычисление хэша с новости
+        hash_value = SyncOrm.get_hash(article)
+        # проверка на существования статьи
+        check = SyncOrm.check_article(article, hash_value, source_id, session)
+
+        return (source_id, hash_value, check)
 
     @staticmethod
     def insert_news_to_db(article_clear: dict[any, any], article: Article):
         with session_fabric() as session:
-            source_id, hash_value = SyncOrm.pre_write_check(article, session)
+            source_id, hash_value, check = SyncOrm.pre_write_check(
+                article,
+                session,
+                )
+
+            if check:
+                session.commit()
+                return None
+
             log.debug(f'Получение новости с сайта {article.site_link}')
             article_dict = {
                 **article_clear,
