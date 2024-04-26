@@ -24,7 +24,7 @@ def main(recreate_table: bool = True) -> None:
         # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
         article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
-        time.sleep(1)
+        time.sleep(2)
 
 
 def send_to_db(article_generator: Generator) -> None:
@@ -35,5 +35,5 @@ def send_to_db(article_generator: Generator) -> None:
 
 if __name__ == '__main__':
     start = time.time()
-    main(False)
+    main(True)
     print(time.time() - start)
