@@ -169,11 +169,13 @@ class SyncOrm:
             session: Session
             ) -> ArticleOrm:
         log.info('Обновление вложений')
+        log.info(f'Было {article_orm}')
         article_orm.image = SyncOrm.get_article_image(article)
         article_orm.content_blocks = (
             SyncOrm.get_article_content_block(article)
             )
         article_orm.tags = SyncOrm.get_article_tags(article, session)
+        log.info(f'Стало {article_orm}')
         log.info('Вложения обновлены')
         return article_orm
 

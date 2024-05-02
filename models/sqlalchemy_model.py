@@ -20,6 +20,7 @@ article_tag = Table(
     Column('tag_id', ForeignKey('tag.id'), primary_key=True)
 )
 
+# реализация промежуточной таблицы только через классы
 # class ArticleTag(Base):
 #     __tablename__ = 'article_tag'
 
