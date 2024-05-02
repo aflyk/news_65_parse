@@ -145,6 +145,7 @@ class SyncOrm:
 
         if article_orm and (article_orm.hash != hash_value):
             # организовать удаление записи или апдейт?
+            log.info(f'Update is not equal {article_orm.hash}!={hash_value} ')
             article_clear = ArticleBase(**article.model_dump()).model_dump()
             article_dict = {
                 **article_clear,
@@ -152,13 +153,14 @@ class SyncOrm:
                 'hash': hash_value,
                 }
             article_orm = ArticleOrm(**article_dict)
-            article_orm = SourceOrm.update_article(
+            article_orm = SyncOrm.update_article(
                 article_orm,
                 article,
                 session
                 )
             return True
         elif article_orm and (article_orm.hash == hash_value):
+            log.info('Обновлений не требуется')
             return True
         return False
 
