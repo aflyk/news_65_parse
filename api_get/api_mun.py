@@ -1,6 +1,8 @@
 import requests
+import backoff
 
 
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Generator
 
@@ -8,6 +10,22 @@ from typing import Generator
 from models.pydantic_mun_model import News, Article, Image
 
 
+log = logging.getLogger(__name__)
+
+
+def backof_handler(details):
+    log.debug(
+        "Backing off {wait:0.1f} seconds after {tries} tries "
+        "calling function {target} with args {args} and kwargs "
+        "{kwargs}".format(**details)
+    )
+
+
+@backoff.on_exception(backoff.expo,
+                      (requests.exceptions.ProxyError,
+                       requests.exceptions.SSLError),
+                      max_tries=8,
+                      on_backoff=backof_handler)
 def get_mun_api(link: str) -> dict[str, any]:
     # получаем данные с внутреннего апи и возвращаем в виде dict
     response = requests.get(link)

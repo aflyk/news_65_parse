@@ -40,7 +40,7 @@ class ArticleOrm(Base):
     title: Mapped[str]
     published_at: Mapped[datetime]
     lead: Mapped[str]
-    rubric_title: Mapped[str]
+    rubric_title: Mapped[Optional[str]]
     type: Mapped[str]
     hash: Mapped[str]
     authors: Mapped[Optional[str]]

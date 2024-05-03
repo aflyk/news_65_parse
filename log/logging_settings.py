@@ -18,6 +18,11 @@ logging_config = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'api_get.api_mun': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        },
     },
     'root': {
         'level': 'DEBUG',
