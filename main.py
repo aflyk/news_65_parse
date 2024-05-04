@@ -1,4 +1,6 @@
-import logging, logging.config
+import time
+import logging.config
+
 from typing import Generator
 
 from log.logging_settings import logging_config
@@ -22,16 +24,18 @@ def main(recreate_table: bool = True) -> None:
         # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
         article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
-        break
-        # raise f'Неожиданный тип новостных порталов: {type_link}'
+        time.sleep(2)
 
 
 def send_to_db(article_generator: Generator) -> None:
     for article in article_generator:
         article_clear = ArticleBase(**article.model_dump())
         SyncOrm.insert_news_to_db(article_clear.model_dump(), article)
-        break
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        start = time.time()
+        main(False)
+        log.info(f'Время выполнения: {time.time() - start}')
+        time.sleep(600)

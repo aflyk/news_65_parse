@@ -15,6 +15,7 @@ lxml = "^5.2.1"
 pydantic = "^2.6.4"
 sqlalchemy = "^2.0.29"
 psycopg2 = "^2.9.9"
+backoff = "^2.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
