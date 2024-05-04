@@ -81,11 +81,13 @@ class SyncOrm:
         try:
             for image in images:
                 image_orm = {**image, 'content_id': content_id}
+                image_orm = ImageOrm(**image_orm)
                 session.add(
-                    ImageOrm(**image_orm)
+                    image_orm
                     )
             if not content_id:
                 return image_orm.id
-            return None
         except Exception as e:
             log.debug(f'Возникла проблема {e} с добавлением \n{image}\nв таблицу image')
+        return None
+
