@@ -34,8 +34,8 @@ def send_to_db(article_generator: Generator) -> None:
 
 
 if __name__ == '__main__':
-    while True:
-        start = time.time()
-        main(False)
-        log.info(f'Время выполнения: {time.time() - start}')
-        time.sleep(600)
+    # while True:
+    start = time.time()
+    main()
+    log.info(f'Время выполнения: {time.time() - start}')
+    # time.sleep(600)

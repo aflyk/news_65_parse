@@ -182,25 +182,6 @@ class SyncOrm:
         return article_orm
 
     @staticmethod
-<<<<<<< HEAD
-    def create_image_record(images: list[dict[str, str]],
-                            session,
-                            content_id: int | None = None
-                            ) -> int | None:
-        try:
-            for image in images:
-                image_orm = {**image, 'content_id': content_id}
-                image_orm = ImageOrm(**image_orm)
-                session.add(
-                    image_orm
-                    )
-            if not content_id:
-                return image_orm.id
-        except Exception as e:
-            log.debug(f'Возникла проблема {e} с добавлением \n{image}\nв таблицу image')
-        return None
-
-=======
     def get_hash(article: Article):
         hash_object = hashlib.sha256(article.model_dump_json().encode())
         hash_value = hash_object.hexdigest()
@@ -259,4 +240,3 @@ class SyncOrm:
                 raise
             session.add(article_orm)
             session.commit()
->>>>>>> f87ab61ea3ec815c3d817ef998c73022573e6046
