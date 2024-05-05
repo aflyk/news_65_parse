@@ -7,6 +7,9 @@ import requests
 from bs4 import BeautifulSoup as bs
 
 
+from models.pydantic_mun_model import Article, Content
+
+
 logging.basicConfig(
     format="#{levelname:8} {lineno}:{funcName} - {message}",
     style='{'
@@ -76,10 +79,36 @@ def get_all_news():
     return actual_news_list
 
 
+def get_article_tags(article_soup: bs) -> list[str]:
+    tags_list = []
+    for tags_block in article_soup.find_all('div', 'block-tegs-text'):
+        for tags in tags_block.find_all('a'):
+            tags_list.append(tags.text)
+    return tags_list
+
+
 def main():
     news_list = get_all_news()
-    # log.debug(news_list)
-    log.debug(len(news_list))
+    base_url = 'https://astv.ru'
+    log.debug(f'Всего получено новостей: {len(news_list)}')
+    for news in news_list:
+        article_url = news.find('a').get('href')
+        article_img = get_article_image_dict(news.find_all('img')[0])
+        log.info('Получения заголовка статьи')
+        article_title = news.find_all('a')[-1].text
+        log.info(f'Получен заголовок статьи: {article_title}')
+        log.info('Получение published_at')
+        date_string = news.select_one('span.ico-p:not([class*=" "]):not([title])').text
+        published_at = convert_str_to_date(date_string)
+        log.info(f'Получен published_at: {published_at}')
+        rubric_title = news.filnd_all('a')[-2].text
+        log.info(f'Получены рубрики: {rubric_title}')
+        article_response = requests.get(base_url + article_url)
+        if article_response.status_code != 200:
+            log.warning('Проблема получения контента статьи'
+                        f'\nurl={base_url + article_url}'
+                        f'\nstatus_code={article_response.status_code}')
+        article_soup = bs(article_response.text, 'lxml')
 
 
 if __name__ == '__main__':

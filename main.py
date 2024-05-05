@@ -21,7 +21,6 @@ def main(recreate_table: bool = True) -> None:
         log.debug('Начало заполнения каталогов')
         SyncOrm.fill_catalog(settings.news_link)
     for source in settings.news_link:
-        # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
         article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
         time.sleep(2)
