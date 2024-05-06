@@ -113,6 +113,7 @@ class SyncOrm:
                 select(TagOrm)
                 .filter_by(title=tag_title)
             )
+            log.debug(f'Обрабатывается тег {tag_title}')
             tag_orm = SyncOrm.get_one_or_none(query, session)
             log.debug(f'Полученны данные {tag_orm}')
             if not tag_orm:

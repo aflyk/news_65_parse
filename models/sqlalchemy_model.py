@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional
 
 
-from sqlalchemy import ForeignKey, Table, Column
+from sqlalchemy import ForeignKey, Table, Column, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
@@ -116,6 +116,10 @@ class TagOrm(Base):
     title: Mapped[Optional[str]]
     slug: Mapped[Optional[str]]
     path: Mapped[Optional[str]]
+
+    __table_args__ = (
+        UniqueConstraint('title', 'slug', name='uq_col1_col2'),
+    )
 
     article: Mapped[list['ArticleOrm']] = relationship(
         back_populates='tags',

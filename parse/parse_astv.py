@@ -75,7 +75,7 @@ def get_all_news():
     return actual_news_list
 
 
-def get_article_tags(article_soup: bs) -> list[str]:
+def get_article_tags(article_soup: bs) -> list[dict[str, str | None]]:
     tags_list = []
     for tags_block in article_soup.find_all('div', 'block-tegs-text'):
         for tags in tags_block.find_all('a'):
@@ -84,7 +84,8 @@ def get_article_tags(article_soup: bs) -> list[str]:
                 'slug': slugify(tags.text.strip()),
                 'path': None
             }
-            tags_list.append(tag_dict)
+            if tag_dict not in tags_list:
+                tags_list.append(tag_dict)
     return tags_list
 
 
