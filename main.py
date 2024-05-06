@@ -8,6 +8,7 @@ from config import settings
 from api_get.api_mun import mun_get_main
 from queries.orm import SyncOrm
 from models.pydantic_mun_model import ArticleBase
+from parse.parse_astv import main as parse_astv
 
 
 logging.config.dictConfig(logging_config)
@@ -21,7 +22,11 @@ def main(recreate_table: bool = True) -> None:
         log.debug('Начало заполнения каталогов')
         SyncOrm.fill_catalog(settings.news_link)
     for source in settings.news_link:
-        article_generator = mun_get_main(source['url'])
+        # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
+        if source['url'] == 'https://astv.ru':
+            article_generator = parse_astv()
+        else:
+            article_generator = mun_get_main(source['url'])
         send_to_db(article_generator)
         time.sleep(2)
 

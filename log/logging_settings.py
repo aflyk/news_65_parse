@@ -3,7 +3,7 @@ logging_config = {
     'disable_existing_loggers': True,
     'formatters': {
         'default': {
-            'format': '#%(levelname)-8s %(name)s:%(funcName)s - %(message)s'
+            'format': '#%(levelname)-8s|%(lineno)s %(name)s:%(funcName)s - %(message)s'
         },
     },
     'handlers': {
@@ -23,6 +23,11 @@ logging_config = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'parse.parse_astv': {
+            'level': 'DEBUG',
+            'handlers': ['default'],
+            'propagate': False,
+        }
     },
     'root': {
         'level': 'DEBUG',

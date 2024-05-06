@@ -5,17 +5,13 @@ from datetime import datetime, timedelta
 
 import requests
 from bs4 import BeautifulSoup as bs
+from slugify import slugify
 
 
-from models.pydantic_mun_model import Article, Content
+from models.pydantic_mun_model import Article
 
 
-logging.basicConfig(
-    format="#{levelname:8} {lineno}:{funcName} - {message}",
-    style='{'
-)
 log = logging.getLogger(__name__)
-log.setLevel('DEBUG')
 
 
 def get_article_image_dict(img_bs: bs) -> dict[str, str]:
@@ -83,8 +79,100 @@ def get_article_tags(article_soup: bs) -> list[str]:
     tags_list = []
     for tags_block in article_soup.find_all('div', 'block-tegs-text'):
         for tags in tags_block.find_all('a'):
-            tags_list.append(tags.text)
+            tag_dict = {
+                'title': tags.text,
+                'slug': slugify(tags.text.strip()),
+                'path': None
+            }
+            tags_list.append(tag_dict)
     return tags_list
+
+
+def get_content_img_dict(soup):
+    img_link_bs = soup.find('img')
+    if not img_link_bs:
+        return None
+    img_short_link = img_link_bs.get('src')
+    img_full_link = 'https://astv.ru' + img_short_link
+    return {
+            'image_90': img_full_link,
+            'image_250': img_full_link,
+            'image_800': img_full_link,
+            'image_1600': img_full_link,
+            'width': img_link_bs.get('width'),
+            'height': img_link_bs.get('height'),
+        }
+
+
+def create_content(
+        position: int,
+        kind: str,
+        text: None | str = None,
+        images: None | list[dict[str, str | None]] = None
+        ) -> dict[str, any]:
+    return {
+        'position': position,
+        'kind': kind,
+        'text': text,
+        'images': images,
+    }
+
+
+def parse_content(content_page: bs):
+    elem_list = content_page.find('div', attrs={'id': 'mainContentFromPage'})
+    elem_list_p = elem_list.find_all('p')
+    content_list = []
+
+    if elem_list_p:
+        for index, elem in enumerate(elem_list_p):
+            if elem.find('img'):
+                image = get_content_img_dict(elem)
+                content_dict = create_content(index, 'image', images=[image])
+
+            elif elem.find('iframe'):
+                content_dict = create_content(index, 'video')
+
+            else:
+                content_dict = create_content(index, 'common', elem.prettify().strip())
+
+            log.debug(f'вывод {content_dict}')
+            content_list.append(content_dict)
+
+    else:
+        elem_list_div = elem_list.find_all('div', class_=None)
+        img_dict: dict[str, dict[str, str | None | int]] = {}
+
+        for index, elem in enumerate(elem_list_div):
+            if elem.find('a'):
+                img_gallery_bs = elem.find('a')
+                img_link_bs = img_gallery_bs.find('img')
+                if not img_link_bs:
+                    continue
+                img_link = img_link_bs.get('src')
+                if not img_dict.get(img_link):
+                    img_dict[img_link] = {
+                            'image_90': img_link,
+                            'image_250': img_link,
+                            'image_800': img_link,
+                            'image_1600': img_link,
+                            'width': img_link_bs.get('width'),
+                            'height': img_link_bs.get('height'),
+                            'position': index
+                        }
+            elif elem.find('img'):
+                log.debug('обработка фотки')
+                image = get_content_img_dict(elem)
+                content_dict = create_content(index, 'image', images=[image])
+            else:
+                if elem.text.strip():
+                    content_list.append(create_content(index, 'common', elem.prettify().strip()))
+                    log.debug(elem.prettify().strip())
+        if img_dict:
+            index = min(img_dict.values(), key=lambda x: x['position'])['position']
+            content_list.append(create_content(index, 'gallery', None, list(img_dict.values())))
+
+    log.debug(f'Возвращаем контент {content_list}')
+    return content_list
 
 
 def main():
@@ -94,21 +182,51 @@ def main():
     for news in news_list:
         article_url = news.find('a').get('href')
         article_img = get_article_image_dict(news.find_all('img')[0])
+
         log.info('Получения заголовка статьи')
         article_title = news.find_all('a')[-1].text
         log.info(f'Получен заголовок статьи: {article_title}')
+
         log.info('Получение published_at')
         date_string = news.select_one('span.ico-p:not([class*=" "]):not([title])').text
         published_at = convert_str_to_date(date_string)
         log.info(f'Получен published_at: {published_at}')
-        rubric_title = news.filnd_all('a')[-2].text
+
+        rubric_title = news.find_all('a')[-2].text
         log.info(f'Получены рубрики: {rubric_title}')
+
         article_response = requests.get(base_url + article_url)
         if article_response.status_code != 200:
             log.warning('Проблема получения контента статьи'
                         f'\nurl={base_url + article_url}'
                         f'\nstatus_code={article_response.status_code}')
         article_soup = bs(article_response.text, 'lxml')
+
+        tags = get_article_tags(article_soup)
+        log.info('Тэги получены')
+
+        author = article_soup.find('span', attrs={"itemprop": "author"}).text.strip().split()[-1]
+        log.info(f'Автор статьи получен: {author=}')
+
+        content_page = article_soup.find('div', class_='content newsDetails')
+        lead = content_page.find('div', class_='h3 lid').text
+        log.info(f'Краткое описание получено: {lead=}')
+
+        content_blocks = parse_content(content_page)
+        log.info('Контент получен')
+        article_dict = {
+            'title': article_title,
+            'published_at': published_at,
+            'lead': lead,
+            'rubric_title': rubric_title,
+            'type': 'АСТВ',
+            'authors': author,
+            'tags': tags,
+            'content_blocks': content_blocks,
+            'image': article_img,
+            'site_link': base_url,
+        }
+        yield Article(**article_dict)
 
 
 if __name__ == '__main__':

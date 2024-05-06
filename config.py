@@ -29,6 +29,7 @@ class Setting(BaseSettings):
 settings = Setting()
 
 SOURCE_LIST = [
+    'Южно-Сахалинск - astv - https://astv.ru',
     'Южно-Сахалинск - Газета «Южно-Сахалинск сегодня» - https://sakhizdat.ru/',
     'Корсаковский ГО - Газета «Восход» - https://восход65.рф/',
     'Долинский ГО - Газета «Долинская правда» - https://dolinsk.today/',
@@ -46,7 +47,7 @@ SOURCE_LIST = [
     'Холмский - Газета «Холмская панорама» - https://kholmsk.info/',
     'Попронайский - Газета «Экспресс» - https://express65.ru/',
     'Томаринский - Газета «Вести Томари» - https://vesti-tomari.ru/',
-    'Южно-Сахалинск - sahk-online - https://sakh.online/'
+    'Южно-Сахалинск - sahk-online - https://sakh.online/',
 ]
 
 for source in SOURCE_LIST:

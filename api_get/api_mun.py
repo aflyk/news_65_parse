@@ -31,7 +31,8 @@ def get_mun_api(link: str) -> dict[str, any]:
     response = requests.get(link)
     if response.status_code == 200:
         return response.json()
-    raise ValueError('Ошибка полученния данных с новостного сайта')
+    # обработать возможную недоступность сервисов
+    raise ValueError(f'Ошибка полученния данных с новостного сайта {link}')
 
 
 def check_actual_date(date: str) -> bool:
