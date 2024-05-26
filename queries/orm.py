@@ -12,7 +12,8 @@ from models.sqlalchemy_model import (
     ArticleOrm,
     ImageOrm,
     TagOrm,
-    SourceOrm
+    SourceOrm,
+    RubricOrm
 )
 from models.pydantic_mun_model import (
     Article,
@@ -61,6 +62,29 @@ class SyncOrm:
             log.info('Фото к статье получено')
             return picture
         log.info(f'Фото к статье не найдено {article.title}'
+                 f'с сайта {article.site_link}')
+        return None
+
+    @staticmethod
+    def get_article_rubric(article: Article, session) -> RubricOrm | None:
+        log.info('Получаем рубрику')
+        rubric_title = article.rubric_title
+        if rubric_title:
+            query = (
+                select(RubricOrm)
+                .filter_by(title=rubric_title.title)
+            )
+            rubric_orm = SyncOrm.get_one_or_none(query, session)
+            if not rubric_orm:
+                try:
+                    rubric_orm = RubricOrm(**rubric_title.model_dump())
+                except Exception as e:
+                    log.exception('Не получилось данные привести к модели '
+                                  f'RubricOrm\n{rubric_title}\n'
+                                  f'Ошибка {e}')
+            log.info('Рубрика получена')
+            return rubric_orm
+        log.info(f'Рубрика к статье не найдена {article.title}'
                  f'с сайта {article.site_link}')
         return None
 
@@ -235,6 +259,11 @@ class SyncOrm:
                 article_orm.content_blocks = (
                     SyncOrm.get_article_content_block(article)
                     )
+                rubric = SyncOrm.get_article_rubric(article, session)
+                if rubric.id:
+                    article_orm.rubric_id = rubric.id
+                else:
+                    article_orm.rubric = rubric
                 article_orm.tags = SyncOrm.get_article_tags(article, session)
             except Exception as e:
                 log.exception(f'{e}\n {article}')

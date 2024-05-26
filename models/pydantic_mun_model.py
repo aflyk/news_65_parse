@@ -29,6 +29,10 @@ class ContentBase(BaseModel):
     text: Optional[str] = None
 
 
+class Rubric(BaseModel):
+    title: str
+
+
 class Content(ContentBase):
     images: Optional[list[Image]] = None
 
@@ -37,7 +41,6 @@ class ArticleBase(BaseModel):
     title: str
     published_at: datetime
     lead: str
-    rubric_title: Optional[str] = None
     type: Optional[str] = None
     authors: list[str] | str | None = None
 
@@ -47,6 +50,12 @@ class Article(ArticleBase):
     content_blocks: Optional[list[Content]] = None
     image: Optional[Image] = None
     site_link: Optional[str] = None
+    rubric_title: Optional[Rubric] = None
+
+    def __init__(self, **data):
+        if 'rubric_title' in data and isinstance(data['rubric_title'], str):
+            data['rubric_title'] = Rubric(title=data['rubric_title'])
+        super().__init__(**data)
 
 
 class News(BaseModel):
@@ -57,3 +66,6 @@ class News(BaseModel):
     lead: str
     article: Optional[Article] = None
     image: Optional[Image] = None
+
+
+

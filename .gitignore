@@ -4,3 +4,4 @@ __pycache__
 *.html
 *.json
 db-data
+.mypy_cahe

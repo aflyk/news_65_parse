@@ -40,11 +40,13 @@ class ArticleOrm(Base):
     title: Mapped[str]
     published_at: Mapped[datetime]
     lead: Mapped[str]
-    rubric_title: Mapped[Optional[str]]
     type: Mapped[str]
     hash: Mapped[str]
     authors: Mapped[Optional[str]]
 
+    rubric_id: Mapped[int] = mapped_column(
+        ForeignKey('rubric.id', name='fk_article_rubrik')
+    )
     source_id: Mapped[int] = mapped_column(
         ForeignKey('source.id', name='fk_article_source')
     )
@@ -64,6 +66,9 @@ class ArticleOrm(Base):
     tags: Mapped[list['TagOrm']] = relationship(
         back_populates='article',
         secondary=article_tag
+    )
+    rubric: Mapped['RubricOrm'] = relationship(
+        back_populates='article'
     )
 
 
@@ -107,6 +112,16 @@ class ImageOrm(Base):
     )
     content: Mapped['ContentOrm'] = relationship(
         back_populates='images'
+    )
+
+
+class RubricOrm(Base):
+    __tablename__ = 'rubric'
+
+    title: Mapped[Optional[str]]
+
+    article: Mapped['ArticleOrm'] = relationship(
+        back_populates='rubric'
     )
 
 
