@@ -17,7 +17,7 @@ session_fabric = sessionmaker(engine)
 
 
 class Base(DeclarativeBase):
-    metadata = MetaData(schema='public')
+    metadata = MetaData(schema=settings.POSTGRES_SCHEMA)
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

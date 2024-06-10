@@ -16,6 +16,7 @@ class Setting(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_HOST: str
     POSTGRES_PORT: str
+    POSTGRES_SCHEMA: str
 
     @property
     def DATABASE_URL_psycopg(self):

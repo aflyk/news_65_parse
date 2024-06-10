@@ -215,6 +215,7 @@ def main():
 
         content_blocks = parse_content(content_page)
         log.info('Контент получен')
+        print(article_url)
         article_dict = {
             'title': article_title,
             'published_at': published_at,
@@ -226,6 +227,7 @@ def main():
             'content_blocks': content_blocks,
             'image': article_img,
             'site_link': base_url,
+            'path': article_url,
         }
         yield Article(**article_dict)
 

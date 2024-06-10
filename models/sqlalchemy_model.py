@@ -42,6 +42,7 @@ class ArticleOrm(Base):
     lead: Mapped[str]
     type: Mapped[str]
     hash: Mapped[str]
+    path: Mapped[str]
     authors: Mapped[Optional[str]]
 
     rubric_id: Mapped[int] = mapped_column(

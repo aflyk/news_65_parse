@@ -33,12 +33,7 @@ def main(recreate_table: bool = True) -> None:
 
 def send_to_db(article_generator: Generator) -> None:
     for article in article_generator:
-        print('*'*20)
-        print(article)
-        print('*'*20)
-
         article_clear = ArticleBase(**article.model_dump())
-        print(ArticleBase)
         SyncOrm.insert_news_to_db(article_clear.model_dump(), article)
 
 
@@ -48,4 +43,3 @@ if __name__ == '__main__':
     main(False)
     log.info(f'Время выполнения: {time.time() - start}')
     # time.sleep(600)
-

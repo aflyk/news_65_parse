@@ -43,6 +43,7 @@ class ArticleBase(BaseModel):
     lead: str
     type: Optional[str] = None
     authors: list[str] | str | None = None
+    path: Optional[str] = None
 
 
 class Article(ArticleBase):
@@ -66,6 +67,3 @@ class News(BaseModel):
     lead: str
     article: Optional[Article] = None
     image: Optional[Image] = None
-
-
-
