@@ -45,7 +45,7 @@ class ArticleOrm(Base):
     path: Mapped[str]
     authors: Mapped[Optional[str]]
 
-    rubric_id: Mapped[int] = mapped_column(
+    rubric_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('rubric.id', name='fk_article_rubrik')
     )
     source_id: Mapped[int] = mapped_column(

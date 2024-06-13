@@ -35,10 +35,11 @@ class SyncOrm:
 
     @staticmethod
     def create_table():
-        Base.metadata.drop_all(bind=engine)
-        log.debug('Таблицы удалены')
-        Base.metadata.create_all(bind=engine)
-        log.debug('Новые таблицы созданы')
+        # if Base.metadata.tables.get('public.source') is None:
+            Base.metadata.drop_all(bind=engine)
+            log.debug('Таблицы удалены')
+            Base.metadata.create_all(bind=engine)
+            log.debug('Новые таблицы созданы')
 
     @staticmethod
     def fill_catalog(sources):
@@ -149,7 +150,8 @@ class SyncOrm:
                                   f'TagOrm\n{tag}\n'
                                   f'Ошибка {e}')
                 log.info(f'Тэг {tag} добавлен')
-            tags_list.append(tag_orm)
+            if not any(map(lambda x: x.title == tag_orm.title, tags_list)):
+                tags_list.append(tag_orm)
         return tags_list
 
     @staticmethod
@@ -260,7 +262,9 @@ class SyncOrm:
                     SyncOrm.get_article_content_block(article)
                     )
                 rubric = SyncOrm.get_article_rubric(article, session)
-                if rubric.id:
+                if rubric is None:
+                    article_orm.rubric = None
+                elif rubric.id:
                     article_orm.rubric_id = rubric.id
                 else:
                     article_orm.rubric = rubric
