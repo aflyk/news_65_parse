@@ -2,7 +2,7 @@ import hashlib
 import logging
 
 
-from sqlalchemy import select
+from sqlalchemy import select, inspect
 from sqlalchemy.orm import Session
 
 
@@ -21,6 +21,7 @@ from models.pydantic_mun_model import (
     ContentBase,
     Image
 )
+from config import settings
 
 
 log = logging.getLogger(__name__)
@@ -34,12 +35,13 @@ class SyncOrm:
         return source.id
 
     @staticmethod
-    def create_table():
-        # if Base.metadata.tables.get('public.source') is None:
+    def create_table(sources):
+        if not inspect(engine).has_table('source', shema=settings.POSTGRES_SCHEMA):
             Base.metadata.drop_all(bind=engine)
             log.debug('Таблицы удалены')
             Base.metadata.create_all(bind=engine)
             log.debug('Новые таблицы созданы')
+            SyncOrm.fill_catalog(sources)
 
     @staticmethod
     def fill_catalog(sources):

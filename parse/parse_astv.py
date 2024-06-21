@@ -9,6 +9,7 @@ from slugify import slugify
 
 
 from models.pydantic_mun_model import Article
+from service.service import Service
 
 
 log = logging.getLogger(__name__)
@@ -43,6 +44,7 @@ def convert_str_to_date(string_time: str) -> datetime | None:
         minutes,
         0
         )
+    published_at = published_at - timedelta(hours=11)
     return published_at
 
 
@@ -94,7 +96,7 @@ def get_content_img_dict(soup):
     if not img_link_bs:
         return None
     img_short_link = img_link_bs.get('src')
-    img_full_link = 'https://astv.ru' + img_short_link
+    img_full_link = img_short_link
     return {
             'image_90': img_full_link,
             'image_250': img_full_link,
@@ -134,7 +136,9 @@ def parse_content(content_page: bs):
                 content_dict = create_content(index, 'video')
 
             else:
-                content_dict = create_content(index, 'common', elem.prettify().strip())
+                string = elem.prettify().strip()
+                result = Service.remove_links(string)
+                content_dict = create_content(index, 'common', result)
 
             log.debug(f'вывод {content_dict}')
             content_list.append(content_dict)
