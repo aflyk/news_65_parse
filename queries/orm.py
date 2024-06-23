@@ -2,7 +2,7 @@ import hashlib
 import logging
 
 
-from sqlalchemy import select
+from sqlalchemy import select, inspect
 from sqlalchemy.orm import Session
 
 
