@@ -19,8 +19,6 @@ session_fabric = sessionmaker(engine)
 class Base(DeclarativeBase):
     metadata = MetaData(schema=settings.POSTGRES_SCHEMA)
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-
     сreated_at: Mapped[datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', now())")
     )

@@ -1,10 +1,11 @@
-
-import re
+from bs4 import BeautifulSoup
 
 
 class Service:
     @staticmethod
-    def remove_links(string):
-        pattern = r'<a.*<\/a>'
-        result = re.sub(pattern, '', string)
-        return result
+    def remove_links(html: str):
+        # soup = BeautifulSoup(html, 'lxml')
+        # for link in soup.find_all('a'):
+        #     link.unwrap()
+        # return str(soup)
+        return html

@@ -37,6 +37,7 @@ article_tag = Table(
 class ArticleOrm(Base):
     __tablename__ = 'article'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str]
     published_at: Mapped[datetime]
     lead: Mapped[str]
@@ -76,6 +77,7 @@ class ArticleOrm(Base):
 class ContentOrm(Base):
     __tablename__ = 'content'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     position: Mapped[Optional[int]]
     kind: Mapped[Optional[str]]
     text: Mapped[Optional[str]]
@@ -94,6 +96,7 @@ class ContentOrm(Base):
 class ImageOrm(Base):
     __tablename__ = 'image'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     author: Mapped[Optional[str]]
     source: Mapped[Optional[str]]
     description: Mapped[Optional[str]]
@@ -119,16 +122,39 @@ class ImageOrm(Base):
 class RubricOrm(Base):
     __tablename__ = 'rubric'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[Optional[str]]
+    theme_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey('theme.id', name='fk_rubric_theme')
+    )
 
     article: Mapped['ArticleOrm'] = relationship(
         back_populates='rubric'
+    )
+    theme: Mapped['ThemeOrm'] = relationship(
+        back_populates='article'
+    )
+
+
+
+class ThemeOrm(Base):
+    __tablename__ = 'theme'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[Optional[str]]
+
+    article: Mapped['ArticleOrm'] = relationship(
+        back_populates='theme'
+    )
+    rubric: Mapped['RubricOrm'] = relationship(
+        back_populates='theme'
     )
 
 
 class TagOrm(Base):
     __tablename__ = 'tag'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[Optional[str]]
     slug: Mapped[Optional[str]]
     path: Mapped[Optional[str]]
@@ -146,6 +172,7 @@ class TagOrm(Base):
 class SourceOrm(Base):
     __tablename__ = 'source'
 
+    id: Mapped[int] = mapped_column(primary_key=True)
     city: Mapped[Optional[str]]
     name: Mapped[Optional[str]]
     url: Mapped[Optional[str]]

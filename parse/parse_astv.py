@@ -225,7 +225,7 @@ def main():
             'published_at': published_at,
             'lead': lead,
             'rubric_title': rubric_title,
-            'type': 'АСТВ',
+            'type': 'ИА АСТВ',
             'authors': author,
             'tags': tags,
             'content_blocks': content_blocks,

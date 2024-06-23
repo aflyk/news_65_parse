@@ -13,7 +13,8 @@ from models.sqlalchemy_model import (
     ImageOrm,
     TagOrm,
     SourceOrm,
-    RubricOrm
+    RubricOrm,
+    ThemeOrm,
 )
 from models.pydantic_mun_model import (
     Article,
@@ -49,6 +50,8 @@ class SyncOrm:
             log.debug('Заполнение таблицы source')
             source_list = [SourceOrm(**source) for source in sources]
             session.add_all(source_list)
+            theme_list = [ThemeOrm(title=theme) for theme in theme_dict]
+            session.add_all(theme_list)
             session.commit()
             log.debug('Справочники заполнены')
 
@@ -167,7 +170,7 @@ class SyncOrm:
             select(ArticleOrm)
             .filter_by(
                 source_id=source_id,
-                published_at=article.published_at
+                title=article.title
                 )
             )
         article_orm = SyncOrm.get_one_or_none(query, session)
