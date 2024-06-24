@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+rfrom pydantic import BaseModel
 
 
 from datetime import datetime
@@ -33,6 +33,9 @@ class Rubric(BaseModel):
     title: str
 
 
+class Theme(BaseModel):
+    title: str
+
 class Content(ContentBase):
     images: Optional[list[Image]] = None
 
@@ -52,6 +55,7 @@ class Article(ArticleBase):
     image: Optional[Image] = None
     site_link: Optional[str] = None
     rubric_title: Optional[Rubric] = None
+    theme_title: Optional[Theme] = None
 
     def __init__(self, **data):
         if 'rubric_title' in data and isinstance(data['rubric_title'], str):

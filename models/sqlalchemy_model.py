@@ -46,6 +46,9 @@ class ArticleOrm(Base):
     path: Mapped[str]
     authors: Mapped[Optional[str]]
 
+    theme_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey('theme.id', name='fk_article_theme')
+    )
     rubric_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('rubric.id', name='fk_article_rubrik')
     )
