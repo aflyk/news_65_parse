@@ -13,7 +13,8 @@ from models.sqlalchemy_model import (
     ImageOrm,
     TagOrm,
     SourceOrm,
-    RubricOrm
+    RubricOrm,
+    ThemeOrm,
 )
 from models.pydantic_mun_model import (
     Article,
@@ -21,6 +22,7 @@ from models.pydantic_mun_model import (
     ContentBase,
     Image
 )
+from config import settings
 
 
 log = logging.getLogger(__name__)
@@ -34,11 +36,14 @@ class SyncOrm:
         return source.id
 
     @staticmethod
-    def create_table():
-        Base.metadata.drop_all(bind=engine)
-        log.debug('Таблицы удалены')
-        Base.metadata.create_all(bind=engine)
-        log.debug('Новые таблицы созданы')
+    def create_table(sources):
+        if not inspect(engine).has_table('source',
+                                         shema=settings.POSTGRES_SCHEMA):
+            Base.metadata.drop_all(bind=engine)
+            log.debug('Таблицы удалены')
+            Base.metadata.create_all(bind=engine)
+            log.debug('Новые таблицы созданы')
+            SyncOrm.fill_catalog(sources)
 
     @staticmethod
     def fill_catalog(sources):
@@ -46,6 +51,9 @@ class SyncOrm:
             log.debug('Заполнение таблицы source')
             source_list = [SourceOrm(**source) for source in sources]
             session.add_all(source_list)
+            theme_list = [ThemeOrm(title=theme)
+                          for theme in settings.theme_dict]
+            session.add_all(theme_list)
             session.commit()
             log.debug('Справочники заполнены')
 
@@ -149,7 +157,8 @@ class SyncOrm:
                                   f'TagOrm\n{tag}\n'
                                   f'Ошибка {e}')
                 log.info(f'Тэг {tag} добавлен')
-            tags_list.append(tag_orm)
+            if not any(map(lambda x: x.title == tag_orm.title, tags_list)):
+                tags_list.append(tag_orm)
         return tags_list
 
     @staticmethod
@@ -163,7 +172,7 @@ class SyncOrm:
             select(ArticleOrm)
             .filter_by(
                 source_id=source_id,
-                published_at=article.published_at
+                title=article.title
                 )
             )
         article_orm = SyncOrm.get_one_or_none(query, session)
@@ -260,7 +269,9 @@ class SyncOrm:
                     SyncOrm.get_article_content_block(article)
                     )
                 rubric = SyncOrm.get_article_rubric(article, session)
-                if rubric.id:
+                if rubric is None:
+                    article_orm.rubric = None
+                elif rubric.id:
                     article_orm.rubric_id = rubric.id
                 else:
                     article_orm.rubric = rubric
