@@ -19,8 +19,6 @@ def main(recreate_table: bool = True) -> None:
     if recreate_table:
         log.debug('Подготовка базы данных')
         SyncOrm.create_table(settings.news_link)
-        # log.debug('Начало заполнения каталогов')
-        # SyncOrm.fill_catalog(settings.news_link)
     for source in settings.news_link:
         # добавить проверку нетиповых сайтов(у которых другой апи или его нет)
         if source['url'] == 'https://astv.ru':

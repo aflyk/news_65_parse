@@ -170,11 +170,14 @@ def parse_content(content_page: bs):
                 content_dict = create_content(index, 'image', images=[image])
             else:
                 if elem.text.strip():
-                    content_list.append(create_content(index, 'common', elem.prettify().strip()))
+                    content_list.append(create_content(
+                        index, 'common', elem.prettify().strip()))
                     log.debug(elem.prettify().strip())
         if img_dict:
-            index = min(img_dict.values(), key=lambda x: x['position'])['position']
-            content_list.append(create_content(index, 'gallery', None, list(img_dict.values())))
+            index = min(img_dict.values(),
+                        key=lambda x: x['position'])['position']
+            content_list.append(create_content(index, 'gallery',
+                                               None, list(img_dict.values())))
 
     log.debug(f'Возвращаем контент {content_list}')
     return content_list
@@ -193,7 +196,8 @@ def main():
         log.info(f'Получен заголовок статьи: {article_title}')
 
         log.info('Получение published_at')
-        date_string = news.select_one('span.ico-p:not([class*=" "]):not([title])').text
+        date_string = news.select_one(
+            'span.ico-p:not([class*=" "]):not([title])').text
         published_at = convert_str_to_date(date_string)
         log.info(f'Получен published_at: {published_at}')
 
@@ -210,7 +214,8 @@ def main():
         tags = get_article_tags(article_soup)
         log.info('Тэги получены')
 
-        author = article_soup.find('span', attrs={"itemprop": "author"}).text.strip().split()[-1]
+        author = article_soup.find('span', attrs={
+            "itemprop": "author"}).text.strip().split()[-1]
         log.info(f'Автор статьи получен: {author=}')
 
         content_page = article_soup.find('div', class_='content newsDetails')

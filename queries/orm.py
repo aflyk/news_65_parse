@@ -38,7 +38,7 @@ class SyncOrm:
     @staticmethod
     def create_table(sources):
         if not inspect(engine).has_table('source',
-                                         shema=settings.POSTGRES_SCHEMA):
+                                         schema=settings.POSTGRES_SCHEMA):
             Base.metadata.drop_all(bind=engine)
             log.debug('Таблицы удалены')
             Base.metadata.create_all(bind=engine)
@@ -83,9 +83,12 @@ class SyncOrm:
                 .filter_by(title=rubric_title.title)
             )
             rubric_orm = SyncOrm.get_one_or_none(query, session)
+
             if not rubric_orm:
                 try:
                     rubric_orm = RubricOrm(**rubric_title.model_dump())
+                    theme_orm = SyncOrm.get_theme(rubric_title.title, session)
+                    rubric_orm.theme_id = theme_orm.id
                 except Exception as e:
                     log.exception('Не получилось данные привести к модели '
                                   f'RubricOrm\n{rubric_title}\n'
@@ -95,6 +98,25 @@ class SyncOrm:
         log.info(f'Рубрика к статье не найдена {article.title}'
                  f'с сайта {article.site_link}')
         return None
+
+    @staticmethod
+    def get_theme(rubric_title: str, session: Session) -> ThemeOrm | None:
+        log.info('Получаем тематику')
+        for key, val in settings.theme_dict.items():
+            if rubric_title.lower() in val:
+                query = (
+                    select(ThemeOrm)
+                    .filter_by(title=key)
+                )
+                break
+        else:
+            query = (
+                select(ThemeOrm)
+                .filter_by(title='не распределенно')
+            )
+        theme_orm = SyncOrm.get_one_or_none(query, session)
+        log.info('Тематика получена')
+        return theme_orm
 
     @staticmethod
     def get_content_image(
@@ -265,19 +287,30 @@ class SyncOrm:
 
             try:
                 article_orm.image = SyncOrm.get_article_image(article)
+
                 article_orm.content_blocks = (
                     SyncOrm.get_article_content_block(article)
                     )
+
                 rubric = SyncOrm.get_article_rubric(article, session)
                 if rubric is None:
                     article_orm.rubric = None
                 elif rubric.id:
                     article_orm.rubric_id = rubric.id
+                    article_orm.theme_id = rubric.theme_id
                 else:
                     article_orm.rubric = rubric
+                    article_orm.theme_id = rubric.theme_id
+
+                # theme = SyncOrm.get_theme(article.rubric_title.title, session)
+                # if theme:
+                #     article_orm.theme = theme
+
                 article_orm.tags = SyncOrm.get_article_tags(article, session)
+
             except Exception as e:
                 log.exception(f'{e}\n {article}')
                 raise
+
             session.add(article_orm)
             session.commit()

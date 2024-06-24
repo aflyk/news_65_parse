@@ -75,6 +75,9 @@ class ArticleOrm(Base):
     rubric: Mapped['RubricOrm'] = relationship(
         back_populates='article'
     )
+    theme: Mapped['ThemeOrm'] = relationship(
+        back_populates='article'
+    )
 
 
 class ContentOrm(Base):
@@ -127,6 +130,7 @@ class RubricOrm(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[Optional[str]]
+
     theme_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('theme.id', name='fk_rubric_theme')
     )
@@ -135,7 +139,7 @@ class RubricOrm(Base):
         back_populates='rubric'
     )
     theme: Mapped['ThemeOrm'] = relationship(
-        back_populates='article'
+        back_populates='rubric'
     )
 
 
